@@ -6,15 +6,21 @@ import (
 
 func TestSet(t *testing.T) {
 	store := NewStore()
-	store.Set("key1", "value1")
+	revision := store.Revision
 
+	rev := store.Set("key1", "value1")
 	value, ok := store.Get("key1")
-	if !ok {
-		t.Errorf("Expected: key1 to exist")
+	if (rev != revision+1) {
+		t.Errorf("Expected: revision to have incremented")
+	}else {
+		if !ok {
+			t.Errorf("Expected: key1 to exist")
+		}
+		if value != "value1" {
+			t.Errorf("Expected: value1, got: %s", value)
+		}
 	}
-	if value != "value1" {
-		t.Errorf("Expected: value1, got: %s", value)
-	}
+	
 }
 
 func TestGet(t *testing.T) {
@@ -41,26 +47,30 @@ func TestGet(t *testing.T) {
 func TestDelete(t *testing.T) {
 	store := NewStore()
 
-	store.Set("key3", "value3")
-	deleted := store.Delete("key3")
-	if !deleted {
-		t.Errorf("Expected: key3 to be deleted")
-	}
-	// We are not wrapping the below code in an if deleted block because 
-	// we want to test the behavior of Get after Delete regardless of whether
-	//  Delete returns true or false. This ensures that even if Delete fails to delete the key,
-	//  we can verify that Get does not return the deleted value.
-	value, ok := store.Get("key3")
-	if ok {
-		t.Errorf("Expected: key3 to be deleted")
-	}
-	if value != "" {
-		t.Errorf("Expected: empty string, got: %s", value)
-	}
+	rev := store.Set("key3", "value3")
+	revision := store.Revision
+	deleted, rev := store.Delete("key3")
+	if (rev != revision+1) {
+		t.Errorf("Expected: Revision to have incremented")
+	}else {
+		if !deleted {
+			t.Errorf("Expected: key3 to be deleted")
+		}
+		// We are not wrapping the below code in an if deleted block because 
+		// we want to test the behavior of Get after Delete regardless of whether, Delete returns true or false.
+		value, ok := store.Get("key3")
+		if ok {
+			t.Errorf("Expected: key3 to be deleted")
+		}
+		if value != "" {
+			t.Errorf("Expected: empty string, got: %s", value)
+		}
 
 
-	deleted = store.Delete("nonexistent")
-	if deleted {
-		t.Errorf("Expected: nonexistent key to not be deleted")
+		deleted, rev = store.Delete("nonexistent")
+		if deleted {
+			t.Errorf("Expected: nonexistent key to not be deleted")
+		}
 	}
+	
 }

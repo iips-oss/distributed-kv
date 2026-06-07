@@ -7,7 +7,7 @@ import (
 type Store struct {
 	values map[string]string
 	mu	 sync.RWMutex
-
+	Revision int64
 }
 
 func NewStore() *Store {
@@ -15,15 +15,18 @@ func NewStore() *Store {
 	return &Store{
 		values: m,
 		mu:     sync.RWMutex{},
+		Revision: 0,
 	}
 }
 
 	
-func (s *Store) Set(key, value string) {
+func (s *Store) Set(key, value string) int64 {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	s.values[key] = value
+	s.Revision++
+	return s.Revision
 }
 
 func (s *Store) Get(key string) (string, bool) {
@@ -34,16 +37,17 @@ func (s *Store) Get(key string) (string, bool) {
 	return value, ok
 }
 
-func (s *Store) Delete(key string) bool {
+func (s *Store) Delete(key string) (bool, int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	// vlaue, ok := s.values[key], ok is true if key exists, false otherwise
 	_, ok := s.values[key]
 	if !ok {
-		return false
+		return false, s.Revision
 	}
 
 	delete(s.values, key)
-	return true	
+	s.Revision++
+	return true, s.Revision
 }
 
