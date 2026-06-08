@@ -6,27 +6,30 @@ import (
 
 type Store struct {
 	values map[string]string
+	revision int64
 	mu	 sync.RWMutex
-	Revision int64
 }
 
 func NewStore() *Store {
-	m := make(map[string]string)
-	return &Store{
-		values: m,
-		mu:     sync.RWMutex{},
-		Revision: 0,
+	// Only Map needs initialization, the rest already have their zero values
+	return &Store {
+		values: make(map[string]string),
 	}
 }
 
+func (s *Store) Revision() int64 {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.revision
+}
 	
 func (s *Store) Set(key, value string) int64 {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.values[key] = value
-	s.Revision++
-	return s.Revision
+	s.revision++
+	return s.revision
 }
 
 func (s *Store) Get(key string) (string, bool) {
@@ -43,11 +46,11 @@ func (s *Store) Delete(key string) (bool, int64) {
 	// vlaue, ok := s.values[key], ok is true if key exists, false otherwise
 	_, ok := s.values[key]
 	if !ok {
-		return false, s.Revision
+		return false, s.revision
 	}
 
 	delete(s.values, key)
-	s.Revision++
-	return true, s.Revision
+	s.revision++
+	return true, s.revision
 }
 
