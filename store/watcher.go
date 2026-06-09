@@ -18,21 +18,26 @@ type Event struct {
 }
 
 type watcher struct {
-	Prefix string
+	prefix string
 	events chan Event
 }
 
-func NewWatcher(prefix string) *watcher {
+// Exposing channel to return events as read only
+func (w *watcher) ReadEvents() <-chan Event {
+	return w.events
+}
+
+func newWatcher(prefix string) *watcher {
 	return &watcher{
-		Prefix: prefix,
+		prefix: prefix,
 		events: make(chan Event, 64),
 	}
 }
 
 func (s *Store) Watch(prefix string) *watcher{
-	nw := NewWatcher(prefix)
+	nw := newWatcher(prefix)
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.Watchers = append(s.Watchers, nw)
+	s.watchers = append(s.watchers, nw)
 	return nw
 }

@@ -75,7 +75,7 @@ func (s *Store) Delete(key string) (bool, int64) {
 func (s *Store) notify(key string, value string, command Command, revision int64) {
 	// for index, value := range myMap {...}
 	for _, w := range s.watchers{
-		if (strings.HasPrefix(key, w.Prefix)) {
+		if (strings.HasPrefix(key, w.prefix)) {
 			w.events <- Event{
 				Command: command,
 				Key: key,
