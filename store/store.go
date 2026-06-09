@@ -8,6 +8,7 @@ type Store struct {
 	values map[string]string
 	revision int64
 	mu	 sync.RWMutex
+	watchers []*watcher
 }
 
 func NewStore() *Store {
