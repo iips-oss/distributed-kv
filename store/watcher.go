@@ -1,13 +1,38 @@
 package store
 
-type event struct {
-	command string
-	key string
-	value string
-	revision int64
+// Using iota to define commands, as strings typos would compile silently
+type Command int
+
+const (
+	SET Command = iota
+	// GET
+	DELETE
+)
+
+// Event has to be exported because it would be used outside of store too
+type Event struct {
+	Command Command
+	Key string
+	Value string
+	Revision int64
 }
 
 type watcher struct {
-	prefix string
-	events chan event
+	Prefix string
+	events chan Event
+}
+
+func NewWatcher(prefix string) *watcher {
+	return &watcher{
+		Prefix: prefix,
+		events: make(chan Event, 64),
+	}
+}
+
+func (s *Store) Watch(prefix string) *watcher{
+	nw := NewWatcher(prefix)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.Watchers = append(s.Watchers, nw)
+	return nw
 }
