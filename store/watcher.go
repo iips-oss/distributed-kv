@@ -9,6 +9,18 @@ const (
 	DELETE
 )
 
+// Stringer interface for iota
+// here case c==SET --- return "SET"
+func (c Command) String() string {
+	switch c{
+	case SET:
+		return "SET"
+	case DELETE:
+		return "DELETE"
+	default:
+		return "UNKNOWN"
+	}
+}
 
 // Event has to be exported because it would be used outside of store too
 type Event struct {

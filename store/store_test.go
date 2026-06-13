@@ -87,7 +87,7 @@ func TestWatch(t *testing.T) {
 			t.Errorf("Expected: Shyam, Got: %s", event.Value)
 		}
 		if event.Command != SET {
-			t.Errorf("Expected: SET, Got %d",event.Command)
+			t.Errorf("Expected: SET, Got %s",event.Command)
 		}
 		if event.Revision != rev {
 			t.Errorf("Expected: %d, Got: %d", rev, event.Revision)
