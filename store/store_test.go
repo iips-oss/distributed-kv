@@ -74,7 +74,7 @@ func TestDelete(t *testing.T) {
 	
 func TestWatch(t *testing.T) {
 	store := NewStore()
-	watcher := store.Watch("User", store)
+	watcher := store.Watch("User")
 
 	rev := store.Set("User", "Shyam")
 

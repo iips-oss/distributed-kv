@@ -49,8 +49,8 @@ func newWatcher(prefix string, s *Store) *watcher {
 	}
 }
 
-func (s *Store) Watch(prefix string, st *Store) *watcher{
-	nw := newWatcher(prefix, st)
+func (s *Store) Watch(prefix string) *watcher{
+	nw := newWatcher(prefix, s)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.watchers = append(s.watchers, nw)
