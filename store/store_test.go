@@ -2,6 +2,7 @@ package store
 
 import (
 	"testing"
+	"time"
 )
 
 func TestSet(t *testing.T) {
@@ -44,6 +45,7 @@ func TestGet(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	store := NewStore()
+	store.Set("key3", "value3")
 	revision := store.Revision()
 	deleted, rev := store.Delete("key3")
 	if (rev != revision+1) {
@@ -70,3 +72,28 @@ func TestDelete(t *testing.T) {
 	}
 }
 	
+func TestWatch(t *testing.T) {
+	store := NewStore()
+	watcher := store.Watch("User", store)
+
+	rev := store.Set("User", "Shyam")
+
+	select {
+	case event := <-watcher.ReadEvents():
+		if event.Key != "User" {
+			t.Errorf("Expected: User, Got: %s", event.Key)
+		}
+		if event.Value != "Shyam" {
+			t.Errorf("Expected: Shyam, Got: %s", event.Value)
+		}
+		if event.Command != SET {
+			t.Errorf("Expected: SET, Got %d",event.Command)
+		}
+		if event.Revision != rev {
+			t.Errorf("Expected: %d, Got: %d", rev, event.Revision)
+		}
+	case <-time.After(1* time.Second):
+		t.Fatalf("No event on channel")
+	}
+
+}

@@ -9,6 +9,7 @@ const (
 	DELETE
 )
 
+
 // Event has to be exported because it would be used outside of store too
 type Event struct {
 	Command Command
@@ -20,6 +21,7 @@ type Event struct {
 type watcher struct {
 	prefix string
 	events chan Event
+	store *Store
 }
 
 // Exposing channel to return events as read only
@@ -27,15 +29,16 @@ func (w *watcher) ReadEvents() <-chan Event {
 	return w.events
 }
 
-func newWatcher(prefix string) *watcher {
+func newWatcher(prefix string, s *Store) *watcher {
 	return &watcher{
 		prefix: prefix,
 		events: make(chan Event, 64),
+		store: s,
 	}
 }
 
-func (s *Store) Watch(prefix string) *watcher{
-	nw := newWatcher(prefix)
+func (s *Store) Watch(prefix string, st *Store) *watcher{
+	nw := newWatcher(prefix, st)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.watchers = append(s.watchers, nw)
