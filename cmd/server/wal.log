@@ -1,0 +1,3 @@
+{"op":"PUT","key":"name","value":"shantanu"}
+{"op":"PUT","key":"city","value":"mumbai"}
+{"op":"DELETE","key":"city","value":""}
