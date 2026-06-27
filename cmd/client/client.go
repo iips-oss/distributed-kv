@@ -38,8 +38,16 @@ func main() {
 			log.Fatal(err)
 		}
 		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		if line == "exit" {
+			fmt.Printf("QUITTING\n")
+			return
+		}
 		cmd := strings.Split(line, " ")
 		if len(cmd) > 3 || len(cmd) < 2 {
+			fmt.Printf("Error: invalid command syntax\n")
 			continue
 		}
 		method := cmd[0]
@@ -75,7 +83,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-		case "quit": // maybe handle ctrl+c/d singles too
+		case "exit": // maybe handle ctrl+c/d singles too
 			fmt.Printf("QUITING\n")
 			return
 		}

@@ -119,7 +119,6 @@ func (x *SetReq) GetValue() string {
 
 type OpRes struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Err           bool                   `protobuf:"varint,1,opt,name=err,proto3" json:"err,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -154,17 +153,9 @@ func (*OpRes) Descriptor() ([]byte, []int) {
 	return file_kvStore_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *OpRes) GetErr() bool {
-	if x != nil {
-		return x.Err
-	}
-	return false
-}
-
 type OpGetRes struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
-	Err           bool                   `protobuf:"varint,2,opt,name=err,proto3" json:"err,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -206,13 +197,6 @@ func (x *OpGetRes) GetValue() string {
 	return ""
 }
 
-func (x *OpGetRes) GetErr() bool {
-	if x != nil {
-		return x.Err
-	}
-	return false
-}
-
 var File_kvStore_proto protoreflect.FileDescriptor
 
 const file_kvStore_proto_rawDesc = "" +
@@ -222,12 +206,10 @@ const file_kvStore_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\"0\n" +
 	"\x06setReq\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\"\x19\n" +
-	"\x05opRes\x12\x10\n" +
-	"\x03err\x18\x01 \x01(\bR\x03err\"2\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\a\n" +
+	"\x05opRes\" \n" +
 	"\bopGetRes\x12\x14\n" +
-	"\x05value\x18\x01 \x01(\tR\x05value\x12\x10\n" +
-	"\x03err\x18\x02 \x01(\bR\x03err2\x97\x01\n" +
+	"\x05value\x18\x01 \x01(\tR\x05value2\x97\x01\n" +
 	"\akvstore\x120\n" +
 	"\x06kv_get\x12\x11.kvStore.opKeyReq\x1a\x11.kvStore.opGetRes\"\x00\x12+\n" +
 	"\x06kv_set\x12\x0f.kvStore.setReq\x1a\x0e.kvStore.opRes\"\x00\x12-\n" +

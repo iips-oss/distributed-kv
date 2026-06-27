@@ -18,12 +18,8 @@ message setReq {
   string value = 2;
 }
 
-// sending err int might be dumb idea
-message opRes {
-  bool err = 1;
-}
+message opRes {}
 
 message opGetRes {
   string value = 1;
-  bool err = 2;
 }
