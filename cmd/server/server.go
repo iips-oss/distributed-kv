@@ -37,7 +37,8 @@ type server struct {
 
 // these are methods to server struct which is how it implements the KvstoreServer interface
 // https://gobyexample.com/interfaces
-// TODO: add RWMutex locks for sync?
+// TODO: add RWMutex locks for sync? also related read
+// https://oneuptime.com/blog/post/2026-01-23-go-mutex/view
 func (s *server) KvGet(_ context.Context, in *pb.OpKeyReq) (*pb.OpGetRes, error) {
 	key := in.GetKey()
 	log.Printf("log: GET %v", key)
@@ -56,6 +57,13 @@ func (s *server) KvSet(_ context.Context, in *pb.SetReq) (*pb.OpRes, error) {
 	s.store.Set(key, value)
 	set_value, _ := s.store.Get(key)
 	log.Printf("store: SET %v = %v", key, set_value)
+	return &pb.OpRes{}, nil
+}
+
+func (s *server) KvDel(_ context.Context, in *pb.OpKeyReq) (*pb.OpRes, error) {
+	key := in.GetKey()
+	log.Printf("log: DEL %v", key)
+	s.store.Delete(key)
 	return &pb.OpRes{}, nil
 }
 

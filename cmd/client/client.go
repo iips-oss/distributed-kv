@@ -69,7 +69,12 @@ func main() {
 				log.Fatal(err)
 			}
 		case "DEL":
-			fmt.Printf("DEL reviceved \n")
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			_, err := c.KvDel(ctx, &pb.OpKeyReq{Key: key})
+			cancel()
+			if err != nil {
+				log.Fatal(err)
+			}
 		case "quit": // maybe handle ctrl+c/d singles too
 			fmt.Printf("QUITING\n")
 			return
