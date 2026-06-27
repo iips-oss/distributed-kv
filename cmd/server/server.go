@@ -25,26 +25,35 @@ import (
 // lexical order of keys which is efficent for bulk-match key retreval.
 
 var (
-	port  = flag.Int("port", 50051, "sever port")
-	store btree.Map[string, string]
+	port = flag.Int("port", 50051, "sever port")
 )
 
+// NOTE: move store btree from global var to a member of server struct implementation,
+// since global couldn't be mutated with these gRPC methods, lol nvm still couldn't
 type server struct {
 	pb.UnimplementedKvstoreServer
+	store btree.Map[string, string]
 }
 
-// gRPC functions
-func (s *server) KvGet(_ context.Context, in *pb.OpKeyReq) *pb.OpGetRes {
-	log.Printf("Received: %v", in.GetKey())
-	value, err := getKey(store, in.GetKey())
-	return &pb.OpGetRes{Value: value, Err: err}
+// these are methods to server struct which is how it implements the KvstoreServer interface
+// https://gobyexample.com/interfaces
+// TODO: log the return values from GET, SET, DEL of Btree including error/ok value
+func (s *server) KvGet(_ context.Context, in *pb.OpKeyReq) (*pb.OpGetRes, error) {
+	key := in.GetKey()
+	log.Printf("log: GET %v", key)
+	value, ok := s.store.Get(key)
+	log.Printf("store: GET %v = %v : %v", key, value, ok)
+	return &pb.OpGetRes{Value: value}, nil
 }
-func (s *server) KvSet(_ context.Context, in *pb.SetReq) *pb.OpRes {
+
+func (s *server) KvSet(_ context.Context, in *pb.SetReq) (*pb.OpRes, error) {
 	key := in.GetKey()
 	value := in.GetValue()
-	log.Printf("Received: %v %v", key, value)
-	value, err := store.Set(key, value)
-	return &pb.OpRes{Err: err}
+	log.Printf("log: SET %v %v", key, value)
+	s.store.Set(key, value)
+	set_value, _ := s.store.Get(key)
+	log.Printf("store: SET %v = %v", key, set_value)
+	return &pb.OpRes{}, nil
 }
 
 func main() {
@@ -67,17 +76,4 @@ func printMap(kv btree.Map[string, string]) {
 		fmt.Printf("%s %s\n", key, value)
 		return true
 	})
-}
-
-// Iterate over btree to fetch single key
-// @TODO implment bulk fetch of keys
-func getKey(kv btree.Map[string, string], k string) (string, bool) {
-	var ret string
-	kv.Scan(func(key string, value string) bool {
-		if k == key {
-			ret = value
-		}
-		return true
-	})
-	return ret, false
 }
