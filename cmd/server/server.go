@@ -28,8 +28,8 @@ var (
 	port = flag.Int("port", 50051, "sever port")
 )
 
-// NOTE: move store btree from global var to a member of server struct implementation,
-// since global couldn't be mutated with these gRPC methods, lol nvm still couldn't
+// INFO: moved store global -> struct member, both works fine,
+// its just that examples recommends to keep data structs as members
 type server struct {
 	pb.UnimplementedKvstoreServer
 	store btree.Map[string, string]
@@ -37,11 +37,14 @@ type server struct {
 
 // these are methods to server struct which is how it implements the KvstoreServer interface
 // https://gobyexample.com/interfaces
-// TODO: log the return values from GET, SET, DEL of Btree including error/ok value
+// TODO: add RWMutex locks for sync?
 func (s *server) KvGet(_ context.Context, in *pb.OpKeyReq) (*pb.OpGetRes, error) {
 	key := in.GetKey()
 	log.Printf("log: GET %v", key)
 	value, ok := s.store.Get(key)
+	if value == "" {
+		value = "(nil)"
+	}
 	log.Printf("store: GET %v = %v : %v", key, value, ok)
 	return &pb.OpGetRes{Value: value}, nil
 }

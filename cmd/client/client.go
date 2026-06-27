@@ -29,14 +29,15 @@ func main() {
 	}
 	defer conn.Close()
 	c := pb.NewKvstoreClient(conn)
+	reader := bufio.NewReader(os.Stdin)
 
-	for { // maybe unsafe
+	for {
 		fmt.Printf("> ")
-		reader := bufio.NewReader(os.Stdin)
 		line, err := reader.ReadString('\n')
 		if err != nil {
 			log.Fatal(err)
 		}
+		line = strings.TrimSpace(line)
 		cmd := strings.Split(line, " ")
 		if len(cmd) > 3 || len(cmd) < 2 {
 			continue
@@ -46,34 +47,32 @@ func main() {
 
 		switch method {
 		case "GET":
-			fmt.Printf("GET reviceved \n")
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-			defer cancel()
 			r, err := c.KvGet(ctx, &pb.OpKeyReq{Key: key})
+			cancel()
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Printf("%s\n", r.GetValue())
+			value := r.GetValue()
+			if value != "" {
+				fmt.Printf("%s\n", r.GetValue())
+			}
 		case "SET":
 			if len(cmd) != 3 {
 				fmt.Printf("Error: two arguments required\n")
 			}
 			value := cmd[2]
-			fmt.Printf("SET reviceved \n")
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-			defer cancel()
 			_, err := c.KvSet(ctx, &pb.SetReq{Key: key, Value: value})
+			cancel()
 			if err != nil {
 				log.Fatal(err)
 			}
 		case "DEL":
 			fmt.Printf("DEL reviceved \n")
-		case "QUIT":
+		case "quit": // maybe handle ctrl+c/d singles too
 			fmt.Printf("QUITING\n")
-			break
+			return
 		}
-		// ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		// defer cancel()
-		// r, err := c.HiLol(ctx, &pb.HiReq{ClientId: *client_id})
 	}
 }
