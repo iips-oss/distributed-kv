@@ -1,3 +1,6 @@
+module github.com/ShyamMishra-Lab/distributed-kv
+
+go 1.26.4
 module github.com/iips-oss/distributed-kv
 
 go 1.26.3
